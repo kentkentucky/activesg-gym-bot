@@ -2,13 +2,15 @@ from telegram.ext import Application, MessageHandler, filters
 from bs4 import BeautifulSoup
 from curl_cffi import requests as cf_requests
 from dotenv import load_dotenv
+from datetime import time
 
 import requests as regular_requests
 import os
+import pytz
 
 load_dotenv()
 
-CHECK_INTERVAL = 60 * 60 * 24
+SGT = pytz.timezone("Asia/Singapore")
 GYM_NAME = "Sengkang ActiveSG Gym"
 CHAT_ID = int(os.getenv("CHAT_ID"))
 TOKEN = os.getenv("BOT_TOKEN")
@@ -68,7 +70,7 @@ def main():
     # add message handler
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handleCapacity))
     # schedule job 
-    application.job_queue.run_repeating(checkAndNotify, interval=CHECK_INTERVAL, first=10)
+    application.job_queue.run_daily(checkAndNotify, time=time(8, 0, tzinfo=SGT))
     application.run_polling()
 
 if __name__ == '__main__':
